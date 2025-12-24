@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Ptito Carinho</title>
+
+<style>
+body {
+  margin: 0;
+  background: black;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.container {
+  display: flex;
+  gap: 60px;
+}
+
+.eye {
+  width: 120px;
+  height: 120px;
+  background: white;
+  border-radius: 20px;
+  transition: all 0.5s ease;
+}
+
+/* EMOÇÕES */
+.neutro { height: 120px; }
+.sonolento { height: 30px; }
+.surpreso { height: 150px; border-radius: 30px; }
+.pensando { transform: skewX(-8deg); }
+.curioso { transform: translateY(-10px); }
+.feliz { height: 130px; border-radius: 26px; }
+.piscando { height: 15px; }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <div class="eye" id="eyeL"></div>
+  <div class="eye" id="eyeR"></div>
+</div>
+
+<script>
+const eyeL = document.getElementById("eyeL");
+const eyeR = document.getElementById("eyeR");
+
+let carinho = 0;          // nível de afeto
+let ultimoToque = Date.now();
+let segurando = false;
+let tempoPress = 0;
+
+function setEmotion(e) {
+  eyeL.className = "eye " + e;
+  eyeR.className = "eye " + e;
+}
+
+function blink() {
+  eyeL.classList.add("piscando");
+  eyeR.classList.add("piscando");
+  setTimeout(() => setEmotion("neutro"), 200);
+}
+
+/* TOQUE */
+document.body.addEventListener("touchstart", () => {
+  segurando = true;
+  tempoPress = Date.now();
+  setEmotion("surpreso");
+});
+
+document.body.addEventListener("touchend", () => {
+  segurando = false;
+  const duracao = Date.now() - tempoPress;
+  ultimoToque = Date.now();
+
+  if (duracao > 600) {
+    carinho += 2;
+    setEmotion("feliz");      // carinho longo
+  } else {
+    carinho += 1;
+    setEmotion("curioso");    // toque curto
+  }
+});
+
+/* LOOP DE VIDA */
+setInterval(() => {
+  const agora = Date.now();
+
+  // se ficar muito tempo sem toque
+  if (agora - ultimoToque > 8000) {
+    setEmotion("sonolento");
+    carinho = Math.max(0, carinho - 1);
+  }
+
+  // carinho influencia humor
+  if (carinho >= 5) {
+    setEmotion("feliz");
+  }
+
+  // piscada aleatória
+  if (Math.random() > 0.7) {
+    blink();
+  }
+
+}, 3000);
+</script>
+
+</body>
+</html>
